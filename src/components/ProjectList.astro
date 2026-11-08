@@ -1,0 +1,205 @@
+---
+import { Image } from 'astro:assets';
+import { useTranslations, type Lang, type UIKey } from '../i18n/ui';
+import { projectPath } from '../i18n/routes';
+import { repoUrl, slugOf, type Project } from '../lib/projects';
+
+interface Props {
+  lang: Lang;
+  projects: Project[];
+}
+
+const { lang, projects } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="projects" class="section wrap" aria-labelledby="projects-title">
+  <header class="section-head">
+    <p class="section-index">01</p>
+    <h2 id="projects-title" class="section-title">{t('projects.title')}</h2>
+    <p class="section-lead">{t('projects.lead')}</p>
+  </header>
+
+  {
+    projects.length === 0 ? (
+      <p class="empty mono">{t('projects.empty')}</p>
+    ) : (
+      <ol class="list">
+        {projects.map((project, i) => {
+          const { title, summary, stack, status, year, demo, cover, coverAlt, draft } = project.data;
+          const repo = repoUrl(project);
+          return (
+            <li>
+              <article class="row card">
+                <p class="num mono" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </p>
+
+                <div class="body">
+                  <h3 class="title">
+                    <a class="stretched" href={projectPath(lang, slugOf(project))}>
+                      {title}
+                      <span class="arrow" aria-hidden="true">→</span>
+                    </a>
+                  </h3>
+                  <p class="summary">{summary}</p>
+                  {cover && <Image class="cover" src={cover} alt={coverAlt ?? ''} widths={[480, 960]} sizes="(min-width: 960px) 640px, 100vw" />}
+                  <ul class="tags">
+                    {stack.map((tech) => (
+                      <li>{tech}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div class="meta mono">
+                  <p>
+                    <span class:list={['status', `status-${status}`]}>{t(`status.${status}` as UIKey)}</span>
+                    <span aria-hidden="true"> · </span>
+                    {year}
+                  </p>
+                  {draft && <p class="draft-badge">{t('project.draft')}</p>}
+                  {(demo || repo) && (
+                    <p class="links">
+                      {demo && <a href={demo}>{t('project.demo')} ↗</a>}
+                      {repo && <a href={repo}>{t('project.repo')} ↗</a>}
+                    </p>
+                  )}
+                </div>
+              </article>
+            </li>
+          );
+        })}
+      </ol>
+    )
+  }
+</section>
+
+<style>
+  .list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .row {
+    position: relative;
+    display: grid;
+    gap: 0.75rem 1.5rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .row:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px -14px var(--shadow);
+  }
+
+  .num {
+    color: var(--ink-2);
+    transition: color 0.2s ease;
+  }
+
+  .title {
+    font-size: var(--step-2);
+    letter-spacing: var(--heading-tracking);
+  }
+
+  .title a {
+    text-decoration: none;
+  }
+
+  .stretched::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .arrow {
+    display: inline-block;
+    margin-left: 0.2em;
+    color: var(--accent-text);
+    opacity: 0;
+    transform: translateX(-0.3em);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .summary {
+    margin-top: 0.6rem;
+    max-width: 60ch;
+    color: var(--ink-2);
+  }
+
+  .cover {
+    margin-top: 1.25rem;
+    width: 100%;
+    max-width: 640px;
+    border-radius: var(--radius);
+  }
+
+  .tags {
+    margin-top: 1rem;
+  }
+
+  .meta {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    color: var(--ink-2);
+  }
+
+  .draft-badge {
+    justify-self: start;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* links reais ficam acima do link que cobre o cartão inteiro */
+  .links a {
+    position: relative;
+    z-index: 1;
+    color: var(--ink);
+  }
+
+  .row:hover .num,
+  .row:focus-within .num {
+    color: var(--accent-text);
+  }
+
+  .row:hover .arrow,
+  .row:focus-within .arrow {
+    opacity: 1;
+    transform: none;
+  }
+
+  .row:hover .title a {
+    color: var(--ink);
+  }
+
+  .empty {
+    padding-block: 2rem;
+    color: var(--ink-2);
+  }
+
+  @media (min-width: 960px) {
+    .row {
+      grid-template-columns: 4.5rem minmax(0, 1fr) 15rem;
+    }
+
+    .num {
+      font-size: 1rem;
+      padding-top: 0.45rem;
+    }
+
+    .meta {
+      padding-top: 0.5rem;
+    }
+  }
+</style>

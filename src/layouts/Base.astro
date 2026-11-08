@@ -1,0 +1,64 @@
+---
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { htmlLang, otherLang, useTranslations, type Lang } from '../i18n/ui';
+import { withBase } from '../i18n/routes';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+  /** Caminho desta mesma página no outro idioma (já com base). */
+  alternate: string;
+  title?: string;
+  description?: string;
+}
+
+const { lang, alternate, title, description } = Astro.props;
+const t = useTranslations(lang);
+const other = otherLang(lang);
+
+const pageTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${profile.role[lang]}`;
+const desc = description ?? t('meta.description').replace('{name}', profile.name);
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const alternateUrl = new URL(alternate, Astro.site);
+const ptUrl = lang === 'pt' ? canonical : alternateUrl;
+---
+
+<!doctype html>
+<html lang={htmlLang[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={desc} />
+    <meta name="author" content={profile.name} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={htmlLang[lang]} href={canonical} />
+    <link rel="alternate" hreflang={htmlLang[other]} href={alternateUrl} />
+    <link rel="alternate" hreflang="x-default" href={ptUrl} />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#161211" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'pt' ? 'pt_BR' : 'en_US'} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <a class="skip" href="#main">{t('skip')}</a>
+    <Header lang={lang} alternate={alternate} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

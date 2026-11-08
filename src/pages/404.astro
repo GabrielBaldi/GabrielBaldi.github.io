@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import { useTranslations } from '../i18n/ui';
+import { homePath } from '../i18n/routes';
+
+const pt = useTranslations('pt');
+const en = useTranslations('en');
+---
+
+<Base lang="pt" alternate={homePath('en')} title={pt('404.title')}>
+  <section class="nf wrap">
+    <p class="code mono">404</p>
+    <h1>{pt('404.title')}</h1>
+    <p class="text">{pt('404.text')}</p>
+    <p lang="en" class="text en">{en('404.title')}. {en('404.text')}</p>
+    <div class="actions">
+      <a class="btn btn-primary" href={homePath('pt')}>{pt('404.back')}</a>
+      <a class="btn" href={homePath('en')} lang="en">{en('404.back')}</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    display: grid;
+    gap: 1.25rem;
+    padding-block: clamp(4rem, 12vw, 9rem);
+  }
+
+  .code {
+    color: var(--accent-text);
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 8vw, 6rem);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    line-height: 0.95;
+  }
+
+  .text {
+    max-width: 46ch;
+    font-size: var(--step-1);
+  }
+
+  .en {
+    color: var(--ink-2);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+</style>

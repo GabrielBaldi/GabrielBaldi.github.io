@@ -1,0 +1,199 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { otherLang, useTranslations, type Lang, type UIKey } from '../i18n/ui';
+import { projectPath, sectionPath } from '../i18n/routes';
+import { getProjects, repoUrl, slugOf, type Project } from '../lib/projects';
+
+interface Props {
+  lang: Lang;
+  entry: Project;
+}
+
+const { lang, entry } = Astro.props;
+const t = useTranslations(lang);
+const { Content } = await render(entry);
+const { title, summary, year, status, role, stack, demo, cover, coverAlt, draft } = entry.data;
+const repo = repoUrl(entry);
+const slug = slugOf(entry);
+
+const all = await getProjects(lang);
+const index = all.findIndex((p) => p.id === entry.id);
+const next = all.length > 1 ? all[(index + 1) % all.length] : undefined;
+---
+
+<Base lang={lang} alternate={projectPath(otherLang(lang), slug)} title={title} description={summary}>
+  <article class="case wrap">
+    <a class="back mono" href={sectionPath(lang, 'projects')}>← {t('project.back')}</a>
+
+    <header class="head">
+      <p class="eyebrow mono">
+        <span class:list={['status', `status-${status}`]}>{t(`status.${status}` as UIKey)}</span>
+        <span aria-hidden="true"> · </span>
+        {year}
+      </p>
+      <h1 class="title">{title}</h1>
+      <p class="summary">{summary}</p>
+      {draft && <p class="draft-badge">{t('project.draft')}</p>}
+      {
+        (demo || repo) && (
+          <div class="actions">
+            {demo && (
+              <a class="btn btn-primary" href={demo}>
+                {t('project.demo')} ↗
+              </a>
+            )}
+            {repo && (
+              <a class:list={['btn', { 'btn-primary': !demo }]} href={repo}>
+                {t('project.repo')} ↗
+              </a>
+            )}
+          </div>
+        )
+      }
+    </header>
+
+    <div class="layout">
+      <aside>
+        <dl class="spec">
+          <div>
+            <dt>{t('project.year')}</dt>
+            <dd>{year}</dd>
+          </div>
+          <div>
+            <dt>{t('project.status')}</dt>
+            <dd>{t(`status.${status}` as UIKey)}</dd>
+          </div>
+          {
+            role && (
+              <div>
+                <dt>{t('project.role')}</dt>
+                <dd>{role}</dd>
+              </div>
+            )
+          }
+          <div>
+            <dt>{t('project.stack')}</dt>
+            <dd>
+              <ul class="tags">
+                {stack.map((tech) => (
+                  <li>{tech}</li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        </dl>
+      </aside>
+
+      <div class="prose">
+        {cover && <Image class="cover" src={cover} alt={coverAlt ?? ''} widths={[640, 1280]} sizes="(min-width: 960px) 760px, 100vw" />}
+        <Content />
+      </div>
+    </div>
+
+    {
+      next && (
+        <nav class="next card" aria-label={t('project.next')}>
+          <p class="label">{t('project.next')}</p>
+          <a href={projectPath(lang, slugOf(next))}>
+            {next.data.title} <span aria-hidden="true">→</span>
+          </a>
+        </nav>
+      )
+    }
+  </article>
+</Base>
+
+<style>
+  .case {
+    padding-block: clamp(2rem, 5vw, 3rem) clamp(4rem, 9vw, 7rem);
+  }
+
+  .back {
+    display: inline-block;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  .back:hover {
+    color: var(--accent-text);
+  }
+
+  .head {
+    display: grid;
+    gap: 1.25rem;
+    padding-block: clamp(2.5rem, 7vw, 5rem) clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .eyebrow {
+    color: var(--ink-2);
+  }
+
+  .title {
+    font-size: clamp(2.4rem, 8vw, 6rem);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    line-height: 0.95;
+  }
+
+  .summary {
+    max-width: 46ch;
+    font-size: var(--step-1);
+    line-height: 1.4;
+    color: var(--ink-2);
+  }
+
+  .draft-badge {
+    justify-self: start;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .layout {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .spec .tags {
+    padding-top: 0.1rem;
+  }
+
+  .cover {
+    width: 100%;
+    border-radius: var(--radius-lg);
+  }
+
+  .next {
+    margin-top: clamp(4rem, 9vw, 6rem);
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .next a {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-size: var(--step-3);
+    font-weight: var(--heading-weight);
+    letter-spacing: var(--heading-tracking);
+    line-height: 1.05;
+    text-decoration: none;
+  }
+
+  @media (min-width: 960px) {
+    .layout {
+      grid-template-columns: 19rem minmax(0, 1fr);
+      gap: 4rem;
+      align-items: start;
+    }
+
+    aside {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+    }
+  }
+</style>

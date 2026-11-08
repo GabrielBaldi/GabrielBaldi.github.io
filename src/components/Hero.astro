@@ -1,0 +1,124 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const [firstName, ...rest] = profile.name.split(' ');
+const lastName = rest.join(' ');
+---
+
+<section class="hero wrap" aria-labelledby="hero-title">
+  <div class="main">
+    <p class="eyebrow mono reveal" style="--i: 0">
+      <span class="dot" aria-hidden="true"></span>{profile.status[lang]}
+    </p>
+
+    <h1 id="hero-title" class="title">
+      <span class="line reveal" style="--i: 1">{firstName}</span>
+      {lastName && <span class="line offset reveal" style="--i: 2">{lastName}</span>}
+    </h1>
+
+    <p class="headline reveal" style="--i: 3">{profile.headline[lang]}</p>
+
+    <div class="actions reveal" style="--i: 4">
+      <a class="btn btn-primary" href="#projects">{t('hero.cta.projects')} <span aria-hidden="true">↓</span></a>
+      <a class="btn" href="#contact">{t('hero.cta.contact')}</a>
+    </div>
+  </div>
+
+  <dl class="spec reveal" style="--i: 5" aria-label={t('spec.label')}>
+    <div>
+      <dt>{t('spec.role')}</dt>
+      <dd>{profile.role[lang]}</dd>
+    </div>
+    <div>
+      <dt>{t('spec.base')}</dt>
+      <dd>{profile.location[lang]}</dd>
+    </div>
+    <div>
+      <dt>{t('spec.stack')}</dt>
+      <dd>{profile.mainStack.join(' · ')}</dd>
+    </div>
+    <div>
+      <dt>{t('spec.links')}</dt>
+      <dd>
+        <a href={profile.github} rel="me">GitHub ↗</a>
+        <span aria-hidden="true">·</span>
+        <a href={profile.linkedin} rel="me">LinkedIn ↗</a>
+      </dd>
+    </div>
+  </dl>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+    padding-block: clamp(3.5rem, 11vw, 8rem) clamp(3.5rem, 9vw, 6.5rem);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    color: var(--ink-2);
+  }
+
+  .dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .title {
+    margin-top: clamp(1.25rem, 3vw, 2rem);
+    font-size: var(--display-size);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    line-height: var(--display-leading);
+    overflow-wrap: break-word;
+  }
+
+  .line {
+    display: block;
+  }
+
+  .offset {
+    color: var(--accent-text);
+  }
+
+  .headline {
+    margin-top: clamp(1.75rem, 4vw, 2.75rem);
+    max-width: 38ch;
+    font-size: var(--step-1);
+    line-height: 1.4;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .spec dd a {
+    text-decoration: none;
+  }
+
+  .spec dd a:hover {
+    text-decoration: underline;
+  }
+
+  @media (min-width: 960px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr) 21rem;
+      align-items: end;
+    }
+  }
+</style>

@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from './Hero.astro';
+import ProjectList from './ProjectList.astro';
+import Stack from './Stack.astro';
+import About from './About.astro';
+import Contact from './Contact.astro';
+import { otherLang, type Lang } from '../i18n/ui';
+import { homePath } from '../i18n/routes';
+import { getProjects } from '../lib/projects';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const projects = await getProjects(lang);
+---
+
+<Base lang={lang} alternate={homePath(otherLang(lang))}>
+  <Hero lang={lang} />
+  <ProjectList lang={lang} projects={projects} />
+  <Stack lang={lang} />
+  <About lang={lang} />
+  <Contact lang={lang} />
+</Base>

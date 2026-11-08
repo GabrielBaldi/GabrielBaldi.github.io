@@ -1,0 +1,105 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+import { withBase } from '../i18n/routes';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="contact" class="section wrap" aria-labelledby="contact-title">
+  <header class="section-head">
+    <p class="section-index">04</p>
+    <h2 id="contact-title" class="section-title">{t('contact.title')}</h2>
+    <p class="section-lead">{t('contact.lead')}</p>
+  </header>
+
+  <div class="email-row card">
+    <a class="email" href={`mailto:${profile.email}`}>{profile.email}</a>
+    <button type="button" class="btn copy" data-email={profile.email} data-copied={t('contact.copied')} hidden>
+      {t('contact.copy')}
+    </button>
+    <span class="sr-only" aria-live="polite" data-copy-status></span>
+  </div>
+
+  <ul class="links mono">
+    <li><a href={profile.github} rel="me">GitHub ↗</a></li>
+    <li><a href={profile.linkedin} rel="me">LinkedIn ↗</a></li>
+    {
+      profile.cv && (
+        <li>
+          <a href={withBase(profile.cv)} download>
+            {t('contact.cv')} ↓
+          </a>
+        </li>
+      )
+    }
+  </ul>
+</section>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('button.copy');
+  const status = document.querySelector<HTMLElement>('[data-copy-status]');
+
+  if (button && navigator.clipboard) {
+    button.hidden = false;
+    const label = button.textContent;
+
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.email ?? '');
+        button.textContent = button.dataset.copied ?? '';
+        if (status) status.textContent = button.dataset.copied ?? '';
+        setTimeout(() => {
+          button.textContent = label;
+          if (status) status.textContent = '';
+        }, 2000);
+      } catch {
+        window.location.href = `mailto:${button.dataset.email}`;
+      }
+    });
+  }
+</script>
+
+<style>
+  .email-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    padding: 1.5rem clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .email {
+    font-size: clamp(1.6rem, 6.5vw, 4.5rem);
+    font-weight: var(--heading-weight);
+    letter-spacing: var(--heading-tracking);
+    line-height: 1.05;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .email:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .links a {
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -1,0 +1,58 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="stack" class="section wrap split" aria-labelledby="stack-title">
+  <header class="section-head">
+    <p class="section-index">02</p>
+    <h2 id="stack-title" class="section-title">{t('stack.title')}</h2>
+    <p class="section-lead">{t('stack.lead')}</p>
+  </header>
+
+  <div class="grid">
+    {
+      profile.stack.map((group) => (
+        <div class="group card">
+          <h3 class="label">{group.label[lang]}</h3>
+          <ul>
+            {group.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    gap: 1rem;
+  }
+
+  .group {
+    padding: 1.25rem 1.4rem;
+  }
+
+  ul {
+    margin-top: 0.9rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  li {
+    font-size: var(--step-1);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+</style>

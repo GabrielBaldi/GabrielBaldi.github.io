@@ -1,0 +1,151 @@
+---
+import { htmlLang, otherLang, useTranslations, type Lang } from '../i18n/ui';
+import { homePath, sectionPath } from '../i18n/routes';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+  alternate: string;
+}
+
+const { lang, alternate } = Astro.props;
+const t = useTranslations(lang);
+const other = otherLang(lang);
+---
+
+<header class="site-header">
+  <div class="wrap inner">
+    <a class="brand" href={homePath(lang)} aria-label={`${profile.name}, ${t('nav.home')}`}>
+      <span class="mark" aria-hidden="true">{profile.initials}</span>
+      <span class="name">{profile.name}</span>
+    </a>
+
+    <nav aria-label={t('nav.label')}>
+      <ul>
+        <li><a href={sectionPath(lang, 'projects')}>{t('nav.projects')}</a></li>
+        <li class="hide-sm"><a href={sectionPath(lang, 'stack')}>{t('nav.stack')}</a></li>
+        <li><a href={sectionPath(lang, 'about')}>{t('nav.about')}</a></li>
+        <li><a href={sectionPath(lang, 'contact')}>{t('nav.contact')}</a></li>
+      </ul>
+    </nav>
+
+    <a class="lang" href={alternate} hreflang={htmlLang[other]} lang={htmlLang[other]}>
+      <span class="sr-only">{t('nav.switchLabel')}</span>
+      <span aria-hidden="true">
+        <span class:list={['opt', { current: lang === 'pt' }]}>PT</span>
+        <span class="sep">/</span>
+        <span class:list={['opt', { current: lang === 'en' }]}>EN</span>
+      </span>
+    </a>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: var(--header-h);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  .mark {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: background-color 0.18s ease;
+  }
+
+  .brand:hover .mark {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .name {
+    display: none;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  nav ul {
+    display: flex;
+    gap: clamp(0.9rem, 2.5vw, 1.75rem);
+  }
+
+  nav a,
+  .lang {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: var(--ink);
+  }
+
+  .lang {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0.3em 0.75em;
+    border: 1px solid var(--line);
+    border-radius: var(--pill);
+  }
+
+  .lang:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .lang .current {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .lang .sep {
+    margin-inline: 0.25em;
+    opacity: 0.5;
+  }
+
+  .hide-sm {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .hide-sm {
+      display: list-item;
+    }
+  }
+
+  @media (min-width: 860px) {
+    .name {
+      display: inline;
+    }
+  }
+</style>
